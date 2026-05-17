@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cash Position Analyzer — Navigation</title>
+
+<script src="https://cdn.jsdelivr.net/gh/tableau/extensions-api/lib/tableau.extensions.1.latest.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════
+   RESET & ROOT
+═══════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --bg:          #ffffff;
+    --bg-dash:     #f4f6f9;
+    --text-primary:#0f1c2e;
+    --text-mid:    #4a5568;
+    --text-soft:   #8a96a8;
+    --accent:      #c8102e;        /* ComBank red */
+    --accent-dark: #a00d24;
+    --accent-glow: rgba(200,16,46,.12);
+    --gold:        #e6a817;
+    --border:      rgba(15,28,46,.07);
+    --shadow-sm:   0 1px 4px rgba(15,28,46,.06);
+    --shadow-md:   0 4px 16px rgba(15,28,46,.10);
+    --shadow-lg:   0 8px 32px rgba(15,28,46,.13);
+    --radius:      10px;
+    --h:           60px;           /* navbar height */
+    --font:        'Outfit', sans-serif;
+    --nav-active-indicator: #c8102e;
+}
+
+html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    font-family: var(--font);
+    background: transparent;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════════
+   NAVBAR SHELL
+═══════════════════════════════════════════════ */
+.navbar {
+    width: 100%;
+    height: var(--h);
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    padding: 0 20px 0 16px;
+    gap: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle top accent stripe */
+.navbar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2.5px;
+    background: linear-gradient(90deg, var(--accent) 0%, #e63950 40%, var(--gold) 100%);
+    border-radius: 0 0 2px 2px;
+}
+
+/* ═══════════════════════════════════════════════
+   LOGO SECTION
+═══════════════════════════════════════════════ */
+.logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    margin-right: 6px;
+    padding-right: 20px;
+    border-right: 1px solid var(--border);
+    height: 36px;
+}
+
+.logo-img {
+    height: 28px;
+    width: auto;
+    display: block;
+    /* Remove white background from SVG logo */
+    mix-blend-mode: multiply;
+    filter: contrast(1.05);
+}
+
+/* Fallback text if SVG fails */
+.logo-fallback {
+    display: none;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.3px;
+}
+
+/* ═══════════════════════════════════════════════
+   TITLE
+═══════════════════════════════════════════════ */
+.title-wrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 20px;
+    flex-shrink: 0;
+}
+
+.title-main {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.15px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.title-sub {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-soft);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    margin-top: 1px;
+}
+
+/* ═══════════════════════════════════════════════
+   DIVIDER
+═══════════════════════════════════════════════ */
+.v-divider {
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+    flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════
+   NAV LINKS
+═══════════════════════════════════════════════ */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 16px;
+    height: 100%;
+}
+
+.nav-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-mid);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+    white-space: nowrap;
+    border: none;
+    background: none;
+    font-family: var(--font);
+    letter-spacing: -0.1px;
+    user-select: none;
+}
+
+.nav-link:hover {
+    background: var(--bg-dash);
+    color: var(--text-primary);
+}
+
+.nav-link.active {
+    color: var(--accent);
+    background: var(--accent-glow);
+    font-weight: 600;
+}
+
+/* Underline indicator for active */
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 14px; right: 14px;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 2px 2px 0 0;
+}
+
+.nav-link svg {
+    width: 15px; height: 15px;
+    flex-shrink: 0;
+    opacity: 0.65;
+    transition: opacity 0.18s;
+}
+
+.nav-link:hover svg,
+.nav-link.active svg {
+    opacity: 1;
+}
+
+.nav-link.active svg { color: var(--accent); }
+
+/* ═══════════════════════════════════════════════
+   SPACER
+═══════════════════════════════════════════════ */
+.spacer { flex: 1; }
+
+/* ═══════════════════════════════════════════════
+   RIGHT SECTION — date + user
+═══════════════════════════════════════════════ */
+.right-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+/* Live clock */
+.clock-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+}
+
+.clock-time {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.2px;
+    line-height: 1;
+}
+
+.clock-date {
+    font-size: 10px;
+    color: var(--text-soft);
+    letter-spacing: 0.2px;
+}
+
+/* Vertical divider before user */
+.v-divider-sm {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+    flex-shrink: 0;
+}
+
+/* ── USER CHIP ── */
+.user-chip {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 4px 10px 4px 4px;
+    border-radius: 30px;
+    background: var(--bg-dash);
+    border: 1px solid var(--border);
+    cursor: default;
+    transition: box-shadow 0.2s;
+    max-width: 220px;
+}
+
+.user-chip:hover {
+    box-shadow: var(--shadow-sm);
+}
+
+/* Avatar — shows image from Tableau field or initials fallback */
+.avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    object-fit: cover;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.3px;
+    overflow: hidden;
+    border: 1.5px solid rgba(200,16,46,.2);
+}
+
+.avatar img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.user-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+    line-height: 1.2;
+}
+
+.user-role {
+    font-size: 10px;
+    color: var(--text-soft);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+    margin-top: 1px;
+}
+
+/* Status dot on avatar */
+.avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.status-dot {
+    position: absolute;
+    bottom: 1px; right: 1px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    border: 1.5px solid var(--bg-dash);
+}
+
+/* ═══════════════════════════════════════════════
+   LOADING SKELETON
+═══════════════════════════════════════════════ */
+.skeleton {
+    background: linear-gradient(90deg, #f0f2f5 25%, #e8eaed 50%, #f0f2f5 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 6px;
+}
+
+@keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skel-name  { width: 88px; height: 10px; }
+.skel-role  { width: 60px; height: 8px; margin-top: 3px; }
+.skel-avatar{ width: 32px; height: 32px; border-radius: 50%; }
+
+/* ═══════════════════════════════════════════════
+   ALERT BADGE (optional notification dot)
+═══════════════════════════════════════════════ */
+.notif-btn {
+    position: relative;
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-soft);
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+}
+.notif-btn:hover { background: var(--bg-dash); color: var(--text-primary); }
+.notif-btn svg { width: 17px; height: 17px; }
+.notif-dot {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 1.5px solid var(--bg);
+}
+
+/* ═══════════════════════════════════════════════
+   ENTRANCE ANIMATION
+═══════════════════════════════════════════════ */
+@keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.navbar { animation: fadeDown 0.35s ease both; }
+
+.logo-wrap   { animation: fadeDown 0.35s 0.04s ease both; }
+.title-wrap  { animation: fadeDown 0.35s 0.08s ease both; }
+.nav-links   { animation: fadeDown 0.35s 0.12s ease both; }
+.right-section{ animation: fadeDown 0.35s 0.16s ease both; }
+</style>
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+
+    <!-- ── LOGO ── -->
+    <div class="logo-wrap">
+        <img
+            class="logo-img"
+            id="logoImg"
+            src="https://www.combank.lk/assets/images/logo/newlogo.svg"
+            alt="ComBank"
+            onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block';"
+        />
+        <span class="logo-fallback" id="logoFallback">ComBank</span>
+    </div>
+
+    <!-- ── TITLE ── -->
+    <div class="title-wrap">
+        <div class="title-main">Cash Position Analyzer</div>
+        <div class="title-sub">Treasury Dashboard</div>
+    </div>
+
+    <div class="v-divider" style="margin:0 4px"></div>
+
+    <!-- ── NAV LINKS ── -->
+    <nav class="nav-links" id="navLinks">
+
+        <button class="nav-link active" data-page="home" onclick="navigate('home', this)">
+            <!-- home icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            Home
+        </button>
+
+        <button class="nav-link" data-page="limits" onclick="navigate('limits', this)">
+            <!-- shield / limit icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Limits
+        </button>
+
+        <button class="nav-link" data-page="position" onclick="navigate('position', this)">
+            <!-- bar chart icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+            Position
+        </button>
+
+    </nav>
+
+    <div class="spacer"></div>
+
+    <!-- ── RIGHT SECTION ── -->
+    <div class="right-section">
+
+        <!-- Live clock -->
+        <div class="clock-wrap" id="clockWrap">
+            <div class="clock-time" id="clockTime">--:--:--</div>
+            <div class="clock-date" id="clockDate">--- -- ----</div>
+        </div>
+
+        <div class="v-divider-sm"></div>
+
+        <!-- Notification bell -->
+        <button class="notif-btn" title="Notifications">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+            <span class="notif-dot"></span>
+        </button>
+
+        <div class="v-divider-sm"></div>
+
+        <!-- User chip -->
+        <div class="user-chip" id="userChip" title="">
+
+            <!-- Avatar: shows Tableau field image or initials -->
+            <div class="avatar-wrap">
+                <div class="avatar" id="avatarEl">
+                    <!-- Skeleton while loading -->
+                    <div class="skeleton skel-avatar" id="avatarSkel" style="width:100%;height:100%;border-radius:50%"></div>
+                </div>
+                <span class="status-dot"></span>
+            </div>
+
+            <div class="user-info">
+                <div class="user-name skeleton skel-name" id="userName">&nbsp;</div>
+                <div class="user-role skeleton skel-role" id="userRole">&nbsp;</div>
+            </div>
+        </div>
+
+    </div>
+</nav>
+
+<script>
+/* ═══════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════ */
+const MAX_NAME_CHARS = 18;   // truncate display name beyond this
+
+/* ═══════════════════════════════════════════════
+   NAV ACTIVE STATE
+═══════════════════════════════════════════════ */
+function navigate(page, el) {
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    el.classList.add('active');
+    // In a real multi-tab dashboard you would use:
+    // tableau.extensions.dashboardContent.dashboard.activateSheetAsync(page)
+    console.log('Navigate to:', page);
+}
+
+/* ═══════════════════════════════════════════════
+   LIVE CLOCK
+═══════════════════════════════════════════════ */
+function tickClock() {
+    const now  = new Date();
+    const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    const date = now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+    document.getElementById('clockTime').textContent = time;
+    document.getElementById('clockDate').textContent = date;
+}
+tickClock();
+setInterval(tickClock, 1000);
+
+/* ═══════════════════════════════════════════════
+   TRUNCATE NAME
+═══════════════════════════════════════════════ */
+function truncateName(name, max) {
+    if (!name) return '';
+    const trimmed = name.trim();
+    if (trimmed.length <= max) return trimmed;
+    return trimmed.slice(0, max).trimEnd() + '…';
+}
+
+/* ═══════════════════════════════════════════════
+   INITIALS FALLBACK
+═══════════════════════════════════════════════ */
+function getInitials(name) {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+/* ═══════════════════════════════════════════════
+   RENDER USER CHIP
+   Expects: { name, role, imageUrl }
+═══════════════════════════════════════════════ */
+function renderUser({ name, role, imageUrl }) {
+    const displayName = truncateName(name || 'Unknown User', MAX_NAME_CHARS);
+    const displayRole = truncateName(role || 'Staff', 22);
+    const initials    = getInitials(name);
+
+    // Remove skeleton classes
+    const nameEl = document.getElementById('userName');
+    const roleEl = document.getElementById('userRole');
+    nameEl.classList.remove('skeleton', 'skel-name');
+    roleEl.classList.remove('skeleton', 'skel-role');
+    nameEl.textContent = displayName;
+    roleEl.textContent = displayRole;
+
+    // Set tooltip to full name
+    document.getElementById('userChip').title = name || '';
+
+    // Avatar
+    const avatarEl  = document.getElementById('avatarEl');
+    const avatarSkel = document.getElementById('avatarSkel');
+    if (avatarSkel) avatarSkel.remove();
+
+    if (imageUrl && imageUrl.startsWith('http')) {
+        // Image URL from Tableau field
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.alt = initials;
+        img.onerror = () => {
+            img.remove();
+            avatarEl.textContent = initials;
+        };
+        avatarEl.appendChild(img);
+    } else {
+        // Initials fallback
+        avatarEl.textContent = initials;
+    }
+}
+
+/* ═══════════════════════════════════════════════
+   FIELD DETECTION
+═══════════════════════════════════════════════ */
+function findField(keys, ...needles) {
+    for (const needle of needles) {
+        const exact = keys.find(k => k.toLowerCase() === needle.toLowerCase());
+        if (exact) return exact;
+        const sub   = keys.find(k => k.toLowerCase().includes(needle.toLowerCase()));
+        if (sub)   return sub;
+    }
+    return null;
+}
+
+/* ═══════════════════════════════════════════════
+   FETCH USER DATA FROM TABLEAU
+   Expects fields on the Marks card:
+     - "User Name"  (or "username", "user", "name")
+     - "User Role"  (or "role", "department", "title")  [optional]
+     - "User Image" (or "image", "photo", "avatar", "picture") [optional URL field]
+═══════════════════════════════════════════════ */
+async function fetchUserData(worksheet) {
+    try {
+        const reader = await worksheet.getSummaryDataReaderAsync(
+            undefined,
+            { ignoreSelection: true }
+        );
+
+        // Only need first row — user context is the same for all rows
+        const page = await reader.getPageAsync(0);
+        await reader.releaseAsync();
+
+        if (!page.data.length) return null;
+
+        const keys    = page.columns.map(c => c.fieldName);
+        const row     = page.data[0];
+
+        const nameKey  = findField(keys, 'user name', 'username', 'user', 'name', 'loginname', 'login');
+        const roleKey  = findField(keys, 'user role', 'role', 'department', 'title', 'designation', 'dept');
+        const imageKey = findField(keys, 'user image', 'image', 'photo', 'avatar', 'picture', 'profilepic', 'profileimage');
+
+        const getVal = (key) => {
+            if (!key) return null;
+            const idx = keys.indexOf(key);
+            if (idx === -1) return null;
+            const cell = row[idx];
+            return cell.formattedValue || String(cell.nativeValue || '');
+        };
+
+        console.log('Navbar — columns found:', keys);
+        console.log('Navbar — matched:', { nameKey, roleKey, imageKey });
+
+        return {
+            name:     getVal(nameKey),
+            role:     getVal(roleKey),
+            imageUrl: getVal(imageKey)
+        };
+
+    } catch (err) {
+        console.warn('Navbar fetchUserData:', err.message);
+        return null;
+    }
+}
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+window.onload = function () {
+    tableau.extensions.initializeAsync()
+        .then(async () => {
+            const worksheet = tableau.extensions.worksheetContent.worksheet;
+            console.log('Navbar — worksheet:', worksheet.name);
+
+            const userData = await fetchUserData(worksheet);
+
+            if (userData && (userData.name || userData.imageUrl)) {
+                renderUser(userData);
+            } else {
+                // No data on Marks card — show graceful fallback
+                renderUser({ name: 'Treasury User', role: 'Analyst', imageUrl: null });
+            }
+
+            // Re-render if data changes (e.g. Tableau context changes)
+            worksheet.addEventListener(
+                tableau.TableauEventType.SummaryDataChanged,
+                async () => {
+                    const fresh = await fetchUserData(worksheet);
+                    if (fresh) renderUser(fresh);
+                }
+            );
+        })
+        .catch(err => {
+            console.warn('Navbar init fallback (standalone mode):', err.message);
+            // Standalone / preview mode — show placeholder
+            renderUser({ name: 'Treasury User', role: 'Analyst', imageUrl: null });
+        });
+};
+</script>
+</body>
+</html>
