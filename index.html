@@ -23,10 +23,10 @@
   --border-mid: rgba(15,28,46,.12);
   --font:       'Outfit', sans-serif;
 
-  /* Glass surface — adapts to any dashboard bg */
-  --glass-bg:   rgba(255,255,255,0.62);
-  --glass-blur: 18px;
-  --glass-border: rgba(255,255,255,0.7);
+  /* Solid white card — clean against #f4f6f9 dashboard */
+  --glass-bg:   #ffffff;
+  --glass-blur: 0px;
+  --glass-border: rgba(15,28,46,.09);
 
   --h-nav:  58px;
   --radius: 10px;
@@ -52,12 +52,8 @@ html, body {
   width: 100%;
   height: var(--h-nav);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
   border-bottom: 1px solid var(--glass-border);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.8) inset,
-    0 4px 20px rgba(15,28,46,.08);
+  box-shadow: 0 2px 8px rgba(15,28,46,.06), 0 1px 0 rgba(15,28,46,.04);
   display: flex;
   align-items: center;
   padding: 0 18px 0 14px;
@@ -223,7 +219,7 @@ html, body {
   display: flex; align-items: center; gap: 8px;
   padding: 3px 10px 3px 3px;
   border-radius: 30px;
-  background: rgba(255,255,255,.55);
+  background: var(--bg-dash, #f4f6f9);
   border: 1px solid var(--glass-border);
   cursor: default; max-width: 200px;
   transition: box-shadow .18s;
@@ -260,15 +256,14 @@ html, body {
 ════════════════════════════════════════════════════ */
 .filter-panel {
   position: absolute;
-  top: calc(var(--h-nav) + 6px);
+  top: var(--h-nav);
   left: 0; right: 0;
 
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-  border: 1px solid var(--glass-border);
-  border-radius: 0 0 14px 14px;
-  box-shadow: 0 12px 40px rgba(15,28,46,.12), 0 1px 0 rgba(255,255,255,.8) inset;
+  background: #ffffff;
+  border: 1px solid rgba(15,28,46,.09);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 8px 24px rgba(15,28,46,.10);
 
   padding: 0;
   overflow: hidden;
@@ -282,16 +277,24 @@ html, body {
   z-index: 99;
 }
 .filter-panel.open {
-  max-height: 260px;
+  max-height: 58px;
   opacity: 1;
   pointer-events: all;
   transform: translateY(0);
 }
+.filter-panel::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--red), var(--gold));
+  border-radius: 0 0 0 12px;
+}
 
 .fp-inner {
-  padding: 16px 20px 18px;
+  padding: 10px 16px 10px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0;
 }
 
@@ -307,7 +310,8 @@ html, body {
 /* Each drill step */
 .drill-step {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
   min-width: 0;
   opacity: 0;
   transform: translateX(12px);
@@ -334,27 +338,18 @@ html, body {
   opacity: 0;
   transition: width .3s var(--ease), opacity .25s;
   color: var(--text-soft);
-  padding-top: 22px;
+  align-items: center;
 }
 .drill-arrow.visible { width: 28px; opacity: 1; }
 .drill-arrow svg { width: 14px; height: 14px; }
 
-/* Step label */
-.step-label {
-  font-size: 9.5px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: .6px;
-  color: var(--text-soft); margin-bottom: 5px;
-  display: flex; align-items: center; gap: 5px;
-  white-space: nowrap;
-}
-.step-label-dot {
-  width: 5px; height: 5px; border-radius: 50%;
-  background: var(--red); flex-shrink: 0;
-}
+/* Step label — hidden in compact mode */
+.step-label { display: none; }
+.step-label-dot { display: none; }
 
 /* Select dropdown */
 .drill-select {
-  height: 34px;
+  height: 28px;
   min-width: 160px; max-width: 220px;
   padding: 0 30px 0 11px;
   border-radius: 8px;
@@ -380,19 +375,19 @@ html, body {
 .drill-prompt {
   display: none;
   align-items: center; gap: 8px;
-  padding: 7px 13px;
-  border-radius: 8px;
+  padding: 4px 11px;
+  border-radius: 7px;
   background: rgba(200,16,46,.06);
   border: 1px dashed rgba(200,16,46,.25);
-  font-size: 11.5px; font-weight: 500;
+  font-size: 11px; font-weight: 500;
   color: var(--text-mid);
   white-space: nowrap;
   cursor: pointer;
   transition: all .18s;
-  margin-top: 22px;
+  margin-top: 0;
   flex-shrink: 0;
-  height: 34px;
-  align-self: flex-end;
+  height: 28px;
+  align-self: center;
 }
 .drill-prompt:hover { background: var(--red-glow); border-color: rgba(200,16,46,.4); color: var(--red); }
 .drill-prompt.visible { display: flex; }
@@ -402,47 +397,25 @@ html, body {
 .reset-btn {
   display: none;
   align-items: center; gap: 5px;
-  height: 34px; padding: 0 12px;
-  border-radius: 8px;
+  height: 28px; padding: 0 10px;
+  border-radius: 7px;
   border: 1px solid var(--border-mid);
   background: rgba(255,255,255,.5);
   color: var(--text-soft);
-  font-size: 11.5px; font-weight: 500;
+  font-size: 11px; font-weight: 500;
   font-family: var(--font);
   cursor: pointer;
   transition: all .18s;
   white-space: nowrap;
-  align-self: flex-end;
-  margin-left: 10px;
+  align-self: center;
+  margin-left: 8px;
   flex-shrink: 0;
 }
 .reset-btn:hover { background: rgba(255,255,255,.85); color: var(--red); border-color: rgba(200,16,46,.25); }
 .reset-btn svg { width: 13px; height: 13px; }
 .reset-btn.visible { display: flex; }
 
-/* Level badge in panel header */
-.fp-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 20px 0;
-}
-.fp-title {
-  font-size: 11px; font-weight: 600;
-  color: var(--text-mid);
-  text-transform: uppercase; letter-spacing: .5px;
-  display: flex; align-items: center; gap: 7px;
-}
-.fp-title svg { width: 13px; height: 13px; color: var(--red); }
-.level-pill {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 8px; border-radius: 20px;
-  background: var(--red-glow);
-  border: 1px solid rgba(200,16,46,.2);
-  font-size: 9.5px; font-weight: 700;
-  color: var(--red); letter-spacing: .3px;
-  text-transform: uppercase;
-  transition: opacity .2s;
-}
-.level-pill.hidden { opacity: 0; pointer-events: none; }
+/* fp-header removed for compact mode */
 
 /* ════════════════════════════════════════════════════
    ENTRANCE
@@ -539,23 +512,11 @@ html, body {
 ══════════════════════════════════════════ -->
 <div class="filter-panel" id="filterPanel">
 
-  <!-- Panel header -->
-  <div class="fp-header">
-    <div class="fp-title">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-      Drill-Down Filter
-    </div>
-    <div class="level-pill hidden" id="levelPill">All Levels</div>
-  </div>
-
   <div class="fp-inner">
+    <span style="font-size:10.5px;font-weight:600;color:var(--text-soft);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;margin-right:14px;flex-shrink:0;">Filter by</span>
 
     <!-- ─ STEP 1: AGM ─ -->
     <div class="drill-step visible" id="stepAgm">
-      <div class="step-label">
-        <span class="step-label-dot"></span>
-        AGM
-      </div>
       <select class="drill-select" id="selAgm" onchange="onAgmChange()">
         <option value="">— Select AGM —</option>
       </select>
@@ -574,10 +535,6 @@ html, body {
 
     <!-- ─ STEP 2: Region ─ -->
     <div class="drill-step" id="stepRegion">
-      <div class="step-label">
-        <span class="step-label-dot"></span>
-        Region
-      </div>
       <select class="drill-select" id="selRegion" onchange="onRegionChange()">
         <option value="">— Select Region —</option>
       </select>
@@ -596,10 +553,6 @@ html, body {
 
     <!-- ─ STEP 3: Branch ─ -->
     <div class="drill-step" id="stepBranch">
-      <div class="step-label">
-        <span class="step-label-dot"></span>
-        Branch
-      </div>
       <select class="drill-select" id="selBranch" onchange="onBranchChange()">
         <option value="">— Select Branch —</option>
       </select>
@@ -749,11 +702,7 @@ function updateUIState() {
   el('resetBtn').classList.toggle('visible', hasAgm);
 
   // Level pill
-  const pill = el('levelPill');
-  if (hasBranch)       { pill.textContent = 'Branch Level'; pill.classList.remove('hidden'); }
-  else if (hasRegion)  { pill.textContent = 'Region Level'; pill.classList.remove('hidden'); }
-  else if (hasAgm)     { pill.textContent = 'AGM Level';    pill.classList.remove('hidden'); }
-  else                 { pill.classList.add('hidden'); }
+  // level pill removed
 
   // Filter button state
   const filterBtn = el('filterBtn');
