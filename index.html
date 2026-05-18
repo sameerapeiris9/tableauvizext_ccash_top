@@ -442,7 +442,7 @@ html, body {
   <!-- Title -->
   <div class="title-wrap" style="padding:0 14px;">
     <div class="title-main">Cash Position Analyzer</div>
-    <div class="title-sub">Treasury &amp; Liquidity</div>
+    
   </div>
 
   <div class="vdiv" style="margin:0 4px"></div>
@@ -912,7 +912,7 @@ function renderUser({ name, role, imageUrl }) {
   ne.classList.remove('skel','skel-name');
   re.classList.remove('skel','skel-role');
   ne.textContent = trunc(name || 'Treasury User', MAX_NAME);
-  re.textContent = trunc(role || 'Analyst', 22);
+  re.textContent = trunc(role || '', 22);
   el('userChip').title = name || '';
 
   const av = el('avatarEl');
